@@ -20,6 +20,7 @@ public class Main {
 	/** THINGS TO CHANGE **/
 	/**********************/
 	static final String titleOfHackathon = "HackUMass"; // for output file name
+														// (no spaces)
 	static final int schoolCode = 166629; // first column in universities.csv
 	static final double yourSchoolLongitude = -72.532821; // second-to-last
 															// column in
@@ -72,28 +73,34 @@ public class Main {
 					(titleOfHackathon + "SchoolsData.csv"), true));
 			bw.write("Name,Address,City,State,Undergraduate Enrollment,Road Distance (mi),Travel Time One Way (hr)");
 			int i = 0;
-			for (School s : list) {
-				if (!(s.getId() == schoolCode)) {
-					String distStr = googleDistance(s.getLat(), s.getLon());
-					String[] split = distStr.split(",");
-					s.setDist(split[0]);
-					s.setTravelTime(split[1]);
-				} else {
-					s.setDist("0");
-					s.setTravelTime("0");
-				}
-				System.out.println(s.getName());
-				String toWrite = "\n" + s.getName() + "," + s.getAddress()
-						+ "," + s.getCity() + "," + s.getState() + ","
-						+ s.getNumStudents() + "," + s.getDist() + ","
-						+ s.getTravelTime();
-				bw.write(toWrite);
 
-				if (i > MAX_NUM) {
-					bw.close();
-					break;
+			ArrayList<String> done = getDone();
+			int size = done.size();
+			
+			for (School s : list) {
+				if (!done.contains(s.getName())) {
+					if (!(s.getId() == schoolCode)) {
+						String distStr = googleDistance(s.getLat(), s.getLon());
+						String[] split = distStr.split(",");
+						s.setDist(split[0]);
+						s.setTravelTime(split[1]);
+					} else {
+						s.setDist("0");
+						s.setTravelTime("0");
+					}
+					System.out.println((i+size) + " " + s.getName());
+					String toWrite = "\n" + s.getName() + "," + s.getAddress()
+							+ "," + s.getCity() + "," + s.getState() + ","
+							+ s.getNumStudents() + "," + s.getDist() + ","
+							+ s.getTravelTime();
+					bw.write(toWrite);
+
+					if (i > MAX_NUM) {
+						bw.close();
+						break;
+					}
+					i++;
 				}
-				i++;
 			}
 			bw.close();
 
@@ -109,6 +116,20 @@ public class Main {
 		}
 	}
 
+	private static ArrayList<String> getDone() throws IOException {
+		ArrayList<String> done = new ArrayList<>();
+		File f = new File(titleOfHackathon + "SchoolsData.csv");
+		if (f.isFile()) {
+			BufferedReader br = new BufferedReader(new FileReader(f));
+			String line = br.readLine();
+			while ((line = br.readLine()) != null) {
+				done.add(line.split(",")[0]);
+			}
+			br.close();
+		}
+		return done;
+	}
+
 	private static String googleDistance(double lat, double lon)
 			throws Exception {
 		// Thread.sleep(100);
@@ -116,8 +137,7 @@ public class Main {
 		URL url = new URL(
 				"https://maps.googleapis.com/maps/api/distancematrix/json?origins="
 						+ lat + "," + lon + "&destinations="
-						+ yourSchoolLatitude + "," + yourSchoolLongitude
-						+ "&key=" + "AIzaSyAxpYWLIlL0qr0VY3MmxBIKPKMAnX91Yik");
+						+ yourSchoolLatitude + "," + yourSchoolLongitude);
 
 		URLConnection urlc = url.openConnection();
 		BufferedReader in = new BufferedReader(new InputStreamReader(
@@ -134,20 +154,20 @@ public class Main {
 				Double kms = new Double(kmsStr);
 				Double miles = kms * 0.621371;
 				toReturn += miles.toString();
-				
+
 			} else if (l.contains("duration")) {
 				l = in.readLine();
 				// time text, parse to get hours
 				String[] lSplit2 = l.split("\\s");
 				String hrsStr = "0";
 				String minsStr = lSplit2[lSplit2.length - 2];
-				
+
 				if (lSplit2.length == 24) {
 					hrsStr = lSplit2[lSplit2.length - 4].substring(1);
 				} else {
 					minsStr = minsStr.substring(1);
 				}
-				
+
 				Double hrs = new Double(hrsStr);
 				Double mins = new Double(minsStr);
 				mins = mins / new Double(60);
