@@ -19,8 +19,9 @@ public class Main {
 	/**********************/
 	/** THINGS TO CHANGE **/
 	/**********************/
-	static final String titleOfHackathon = "HackUMass"; // for output file name
-														// (no spaces)
+	static final String titleOfHackathon = "TestHackUMass"; // for output file
+															// name
+	// (no spaces)
 	static final int schoolCode = 166629; // first column in universities.csv
 	static final double yourSchoolLongitude = -72.532821; // second-to-last
 															// column in
@@ -30,7 +31,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		final int MAX_NUM = 2000; // Google API download limit is 2500
+		final int MAX_NUM = 50; // Google API download limit is 2500
 
 		try {
 
@@ -46,10 +47,25 @@ public class Main {
 				int id = Integer.parseInt(lineSplit[0]);
 				String name = lineSplit[1].substring(1,
 						lineSplit[1].length() - 1);
-				String address = lineSplit[2].substring(1,
-						lineSplit[2].length() - 1);
-				String city = lineSplit[3];
-				String state = lineSplit[4];
+				String address;
+				
+				// fixes when commas occur in address for suites
+				int increment = 0;
+				if (lineSplit[3].contains("uite")) {
+					address = (lineSplit[2].substring(1,
+							lineSplit[2].length() - 1))
+							+ " "
+							+ lineSplit[3].substring(0,
+									lineSplit[3].length() - 1);
+					increment = 1;
+				} else {
+					address = lineSplit[2].substring(1,
+							lineSplit[2].length() - 1);
+				}
+				
+				
+				String city = lineSplit[3 + increment];
+				String state = lineSplit[4 + increment];
 
 				int pop = 0;
 				if (hash.containsKey(new Integer(id))) {
@@ -72,11 +88,11 @@ public class Main {
 			BufferedWriter bw = new BufferedWriter(new FileWriter(
 					(titleOfHackathon + "SchoolsData.csv"), true));
 			bw.write("Name,Address,City,State,Undergraduate Enrollment,Road Distance (mi),Travel Time One Way (hr)");
-			int i = 0;
+			int i = 1;
 
 			ArrayList<String> done = getDone();
 			int size = done.size();
-			
+
 			for (School s : list) {
 				if (!done.contains(s.getName())) {
 					if (!(s.getId() == schoolCode)) {
@@ -88,14 +104,14 @@ public class Main {
 						s.setDist("0");
 						s.setTravelTime("0");
 					}
-					System.out.println((i+size) + " " + s.getName());
+					System.out.println((i + size) + " " + s.getName());
 					String toWrite = "\n" + s.getName() + "," + s.getAddress()
 							+ "," + s.getCity() + "," + s.getState() + ","
 							+ s.getNumStudents() + "," + s.getDist() + ","
 							+ s.getTravelTime();
 					bw.write(toWrite);
 
-					if (i > MAX_NUM) {
+					if (i >= MAX_NUM) {
 						bw.close();
 						break;
 					}
