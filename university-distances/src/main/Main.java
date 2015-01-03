@@ -139,10 +139,9 @@ public class Main {
 							+ s.getTravelTime();
 					bw.write(toWrite);
 
-					if (i >= MAX_NUM) {
-						bw.close();
+					if (i >= MAX_NUM)
 						break;
-					}
+
 					i++;
 				}
 			}
