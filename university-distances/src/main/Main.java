@@ -13,25 +13,54 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
+import java.util.Scanner;
 
 public class Main {
 
-	/**********************/
-	/** THINGS TO CHANGE **/
-	/**********************/
-	static final String titleOfHackathon = "TestHackUMass"; // for output file
-															// name
-	// (no spaces)
-	static final int schoolCode = 166629; // first column in universities.csv
-	static final double yourSchoolLongitude = -72.532821; // second-to-last
-															// column in
-															// universities.csv
-	static final double yourSchoolLatitude = 42.390164; // last column in
-														// universities.csv
+	static String titleOfHackathon = "FixedHackUMass"; // for output file (no
+														// spaces)
+	static int schoolCode = 166629; // first column in universities.csv
+	static double yourSchoolLongitude = -72.532821; // second-to-last
+													// column in
+													// universities.csv
+	static double yourSchoolLatitude = 42.390164; // last column in
+													// universities.csv
 
 	public static void main(String[] args) {
 
-		final int MAX_NUM = 50; // Google API download limit is 2500
+		final int MAX_NUM = 2400; // Google API download limit is 2500
+
+		Scanner scan = new Scanner(System.in);
+
+		System.out.println("Enter the name of the hackathon (NO SPACES)");
+
+		String tempName;
+
+		do {
+			tempName = scan.nextLine();
+
+			if (tempName.contains(" ")) {
+				System.out.println("No spaces allowed!");
+			}
+		} while (tempName.contains(" "));
+
+		if (!tempName.equals("0"))
+			titleOfHackathon = tempName;
+
+		System.out.println("Enter the school code from universities.csv");
+		int tempCode = scan.nextInt();
+		if (tempCode != 0)
+			schoolCode = tempCode;
+
+		System.out.println("Enter the longitude of your school:");
+		double testLon = scan.nextDouble();
+		if (testLon != 0)
+			yourSchoolLongitude = testLon;
+
+		System.out.println("Enter the latitude of your school:");
+		double testLat = scan.nextDouble();
+		if (testLat != 0)
+			yourSchoolLatitude = testLat;
 
 		try {
 
@@ -48,7 +77,7 @@ public class Main {
 				String name = lineSplit[1].substring(1,
 						lineSplit[1].length() - 1);
 				String address;
-				
+
 				// fixes when commas occur in address for suites
 				int increment = 0;
 				if (lineSplit[3].contains("uite")) {
@@ -62,8 +91,7 @@ public class Main {
 					address = lineSplit[2].substring(1,
 							lineSplit[2].length() - 1);
 				}
-				
-				
+
 				String city = lineSplit[3 + increment];
 				String state = lineSplit[4 + increment];
 
